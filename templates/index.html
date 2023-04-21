@@ -1,17 +1,28 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Chat Box</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Celabrain</title>
     <link rel="stylesheet" href="static/style.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+      crossorigin="anonymous"
+    ></script>
     <script>
       // Send the user's question to the server and display the response
       function sendQuestion() {
         var question = $("#question-input").val();
         if (question) {
           var timestamp = new Date().toLocaleTimeString();
-          $("#chat-area").append("<div container class='message-container'><div class='row'><div class='col timestamp'><p class='small mb-1 text-muted'>" + timestamp + "</p></div></div><div class='row user-message'><div class='col'><span>" + question + "<span></div></div></div>");
+          $("#chat-area").append(
+            "<div container class='message-container'><div class='row'><div class='col timestamp'><p class='small mb-1 text-muted'>" +
+              timestamp +
+              "</p></div></div><div class='row user-message'><div class='col'><span>" +
+              question +
+              "<span></div></div></div>"
+          );
           $("#question-input").val("");
           $("#chat-area").scrollTop($("#chat-area").prop("scrollHeight"));
           $("#loading-indicator").show();
@@ -20,14 +31,16 @@
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify({ question: question }),
-            success: function(data) {
+            success: function (data) {
               var response = data.response.replace(/\n/g, "<br><br>");
               var typingSpeed = 50; // in milliseconds
               var responseArray = response.split(" ");
               var currentIndex = 0;
-              var responseTimer = setInterval(function() {
+              var responseTimer = setInterval(function () {
                 if (currentIndex < responseArray.length) {
-                  var responseText = responseArray.slice(0, currentIndex + 1).join(" ");
+                  var responseText = responseArray
+                    .slice(0, currentIndex + 1)
+                    .join(" ");
                   $("#typing-indicator").html(responseText);
                   currentIndex++;
                 } else {
@@ -35,25 +48,36 @@
                   var timestamp = new Date().toLocaleTimeString();
                   $("#typing-indicator").html("");
                   var response = data.response.replace(/\n/g, "<br>");
-                  $("#chat-area").append("<div container class='message-container'><div class='row'><div class='col bot-timestamp'><p class='small mb-1 text-muted'>" + timestamp + "</p></div></div><div class='row bot-message'><div class='col'><span>" + response.replace(/\n/g, "<br><br>").replace(/(https?:\/\/[^\s]+)/g, "<a href='$1' target='_blank'>$1</a>") + "<span></div></div></div>");
-                  $("#chat-area").scrollTop($("#chat-area").prop("scrollHeight"));
-                  $("#loading-indicator").hide();  
+                  $("#chat-area").append(
+                    "<div container class='message-container'><div class='row'><div class='col bot-timestamp'><p class='small mb-1 text-muted'>" +
+                      timestamp +
+                      "</p></div></div><div class='row bot-message'><div class='col'><span>" +
+                      response
+                        .replace(/\n/g, "<br><br>")
+                        .replace(
+                          /(https?:\/\/[^\s]+)/g,
+                          "<a href='$1' target='_blank'>$1</a>"
+                        ) +
+                      "<span></div></div></div>"
+                  );
+                  $("#chat-area").scrollTop(
+                    $("#chat-area").prop("scrollHeight")
+                  );
+                  $("#loading-indicator").hide();
                 }
               }, typingSpeed);
-
             },
-            error: function() {
+            error: function () {
               alert("Unable to process the request.");
               $("#loading-indicator").hide();
-            }
+            },
           });
         }
       }
 
-
       // Send the user's question when they press Enter in the text input field
-      $("#question-input").keydown(function(event) {
-        if (event.keyCode == 13) {
+      $("#question-input").keydown(function (event) {
+        if (event.keyCode == 13 && !event.shiftKey) {
           sendQuestion();
           $("#question-input").val("");
           return false;
@@ -62,10 +86,27 @@
     </script>
   </head>
   <body>
+    <div class="sidebar">
+      <div class="sidebar-top">
+        <div class="logo-description">
+          <img class="logo" src="../assets/celabrain_logo.jpg" alt="Logo" />
+          <p class="description">
+            Celabrain is an AI-powered assistant for Celanese's internal
+            knowledge base.
+          </p>
+        </div>
+      </div>
+      <div class="sidebar-bottom">
+        <p class="contact-email">
+          Contact us at
+          <a href="mailto:one.help@celanese.com">one.help@celanese.com</a>
+        </p>
+      </div>
+    </div>
     <div id="chat-box">
       <div id="chat-area"></div>
       <div id="input-area">
-        <input type="text" id="question-input" placeholder="Ask here" />
+        <textarea id="question-input" placeholder="Ask here"></textarea>
         <button id="send-button" onclick="sendQuestion()">Send</button>
       </div>
       <div id="typing-indicator"></div>
@@ -74,13 +115,25 @@
       </div>
     </div>
     <script>
+      // autoResize function for the question-input area
+      function autoResize(element) {
+        element.style.height = "auto";
+        element.style.height = element.scrollHeight + "px";
+      }
+
       var input = document.getElementById("question-input");
-      input.addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
+
+      // Add the input event listener here
+      input.addEventListener("input", function () {
+        autoResize(input);
+      });
+
+      input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
           event.preventDefault();
           document.getElementById("send-button").click();
         }
       });
-      </script>
+    </script>
   </body>
 </html>
